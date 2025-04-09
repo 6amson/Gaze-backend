@@ -66,4 +66,10 @@ export class UserController {
         return this.userService.proto(authHeader);
     }
 
+    @Post('create_paymentsheet')
+    async cps(@Body('paymentData') paymentData: {email: string, fullName: string, amount: number}){
+        
+        return await this.userService.createPaymentSheet(paymentData);
+    }
+
 }

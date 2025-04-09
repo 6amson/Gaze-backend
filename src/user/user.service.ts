@@ -15,6 +15,7 @@ const CronJob = require('cron').CronJob;
 import abi721 from './schema/721abi.json';
 import abi1155 from './schema/1155abi.json';
 const ethers = require('ethers');
+const Stripe = require('stripe');
 
 
 
@@ -31,6 +32,8 @@ let subscription1155;
 const publicKey: string = process.env.VAPIDPUBLICKEYS;
 const privateKey: string = process.env.VAPIDPRIVATEKEYS;
 const gcmapi: string = process.env.GCMAPI
+const stripe = Stripe(process.env.STRIPE_LIVE_SECRET_KEY);
+
 
 
 @Injectable()
@@ -737,7 +740,7 @@ export class UserService {
                                             },
                                         )
 
-                                        
+
                                     })();
                                 })
                             }
@@ -1223,7 +1226,7 @@ export class UserService {
                     }
                 })
 
-            }else if (user2Profile) {
+            } else if (user2Profile) {
                 user2Profile.forEach((user) => {
                     const { contractAddress, _id } = user as any;
                     if (contractAddress == null || contractAddress == "" || !contractAddress) {
@@ -1280,6 +1283,60 @@ export class UserService {
         // const address = ethereumJsUtil.bufferToHex(addressBuffer);
 
         // return(address);
+    };
+
+    private async createNewStripeCustomer(email: string, fullName: string, amount: number): Promise<any> {
+        try {
+            const customer = await stripe.customers.create({
+                name: fullName,
+                email: email,
+                description: `Customer account for ${fullName}.`,
+            });
+
+            return { stripeCustomerId: customer.id, amount, email, fullName };
+        } catch (error) {
+            console.log(error);
+        }
     }
+
+    public async createPaymentSheet(
+        paymentData: {
+            email: string,
+            amount: number,
+            fullName: string,
+
+        },
+    ): Promise<any> {
+        const { email,  amount, fullName } = paymentData;
+        const paymentInt = await this.createNewStripeCustomer(email, fullName, amount)
+        const stripeCustomerId = paymentInt.stripeCustomerId.toString();
+        const ephemeralKey = await stripe.ephemeralKeys.create(
+            { customer: stripeCustomerId },
+            { apiVersion: '2024-06-20' },
+        );
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(amount),
+            currency: 'aud',
+            // customer: paymentData.stripeCustomerId,
+            automatic_payment_methods: {
+                enabled: true,
+                allow_redirects: 'never',
+            },
+            setup_future_usage: 'on_session',
+            metadata: {
+                email: email,
+                fullName: fullName
+            },
+        });
+
+        return {
+            paymentIntent: paymentIntent.client_secret,
+            ephemeralKey: ephemeralKey.secret,
+            customer: stripeCustomerId,
+            publishableKey: process.env.STRIPE_LIVE_PUBLISHABLE_KEY,
+        };
+    }
+
+
 }
 
