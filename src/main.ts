@@ -28,7 +28,7 @@ async function bootstrap() {
   //   console.log(randomHexHash)})();
 
   (async function () {
-    await userService.subscribeForAll();
+    // await userService.subscribeForAll();
     console.log('Subscribing for all users')
   })();
 

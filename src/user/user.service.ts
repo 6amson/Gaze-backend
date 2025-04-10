@@ -32,7 +32,7 @@ let subscription1155;
 const publicKey: string = process.env.VAPIDPUBLICKEYS;
 const privateKey: string = process.env.VAPIDPRIVATEKEYS;
 const gcmapi: string = process.env.GCMAPI
-const stripe = Stripe(process.env.STRIPE_LIVE_SECRET_KEY);
+const stripe = Stripe(process.env.STRIPE_TEST_SECRET_KEY);
 
 
 
@@ -1315,7 +1315,7 @@ export class UserService {
             { apiVersion: '2024-06-20' },
         );
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount),
+            amount: Math.round(amount) * 100,
             currency: 'aud',
             // customer: paymentData.stripeCustomerId,
             automatic_payment_methods: {
@@ -1330,10 +1330,10 @@ export class UserService {
         });
 
         return {
-            paymentIntent: paymentIntent.client_secret,
+            clientSecret: paymentIntent.client_secret,
             ephemeralKey: ephemeralKey.secret,
             customer: stripeCustomerId,
-            publishableKey: process.env.STRIPE_LIVE_PUBLISHABLE_KEY,
+            publishableKey: process.env.STRIPE_TEST_PUBLISHABLE_KEY,
         };
     }
 
