@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Redirect, Param, Post, Headers, Put,Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Redirect, Param, Post, Headers, Put, Req, Res } from "@nestjs/common";
 import { User, User2 } from "./schema/user.schema";
 import { UserService } from "./user.service";
 import { UserDto, metamaskDto } from "./dto/user.dto";
@@ -9,8 +9,11 @@ export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Get()
-    @Redirect('https://documenter.getpostman.com/view/26141564/2s9Y5VVQWB', 301)
-    redirectToWebsite() {}
+    helloGaze() {
+        return 'Guarded and healthy.';
+    }
+    // @Redirect('', 301)
+    // redirectToWebsite() {}
 
 
     @Post('user/signup')
@@ -36,38 +39,38 @@ export class UserController {
     }
 
     @Get('user/verify')
-    async verifyAuth (@Headers('authorization') authHeader: string,){
-        
+    async verifyAuth(@Headers('authorization') authHeader: string,) {
+
         return this.userService.verifyAuth(authHeader)
     }
 
     @Post('user/updateuser')
-    async updateuser (@Headers('authorization') authHeader: string, @Body() user: updateUserdto){
-        
+    async updateuser(@Headers('authorization') authHeader: string, @Body() user: updateUserdto) {
+
         return this.userService.updateAndSubscribe(user, authHeader);
     }
 
     @Get('user/unsubscribe')
-    async unsubscribe (@Headers('authorization') authHeader: string,){
-        
+    async unsubscribe(@Headers('authorization') authHeader: string,) {
+
         return this.userService.UnsubscribeNFTNotifs(authHeader)
     }
 
     @Get('user/getnotifs')
-    async getNFTNotifs (@Headers('authorization') authHeader: string){
-        
+    async getNFTNotifs(@Headers('authorization') authHeader: string) {
+
         return this.userService.getNFTNotification(authHeader);
     }
 
 
     @Post('user/proto')
-    async proto (@Headers('authorization') authHeader: string){
-        
+    async proto(@Headers('authorization') authHeader: string) {
+
         return this.userService.proto(authHeader);
     }
 
     @Post('create_paymentsheet')
-    async cps(@Body() paymentData: {email: string, fullName: string, amount: number}){
+    async cps(@Body() paymentData: { email: string, fullName: string, amount: number }) {
         return await this.userService.createPaymentSheet(paymentData);
     }
 
