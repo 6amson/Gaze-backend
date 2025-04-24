@@ -70,7 +70,7 @@ export class UserController {
     }
 
     @Post('create_paymentsheet')
-    async cps(@Body() paymentData: { email: string, fullName: string, amount: number }) {
+    async cps(@Body() paymentData: { email: string, fullName: string, amount: number, currency: string }) {
         return await this.userService.createPaymentSheet(paymentData);
     }
 

@@ -1285,7 +1285,7 @@ export class UserService {
         // return(address);
     };
 
-    private async createNewStripeCustomer(email: string, fullName: string, amount: number): Promise<any> {
+    private async createNewStripeCustomer(email: string, fullName: string, amount: number,): Promise<any> {
         try {
             const customer = await stripe.customers.create({
                 name: fullName,
@@ -1304,10 +1304,10 @@ export class UserService {
             email: string,
             amount: number,
             fullName: string,
-
+            currency: string
         },
     ): Promise<any> {
-        const { email,  amount, fullName } = paymentData;
+        const { email, amount, fullName, currency } = paymentData;
         const paymentInt = await this.createNewStripeCustomer(email, fullName, amount)
         const stripeCustomerId = paymentInt.stripeCustomerId.toString();
         const ephemeralKey = await stripe.ephemeralKeys.create(
@@ -1316,7 +1316,7 @@ export class UserService {
         );
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount) * 100,
-            currency: 'aud',
+            currency: currency,
             // customer: paymentData.stripeCustomerId,
             automatic_payment_methods: {
                 enabled: true,
